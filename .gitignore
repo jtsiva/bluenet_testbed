@@ -1,3 +1,6 @@
+#gradle folder
+.gradle/
+
 # Compiled class file
 *.class
 
