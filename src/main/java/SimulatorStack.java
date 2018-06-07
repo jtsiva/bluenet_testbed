@@ -11,8 +11,19 @@ public class SimulatorStack extends ProtocolContainer {
 		super();
 	}
 
-	public void setBleLayer(DummyBLE ble) {
+
+	@Override
+	protected void setupLayers() {
+		mLayers.add(mRoute);
+		mLayers.add(mGrp);
+		mLayers.add(mLoc);
+		mLayers.add(mMsg);
+		mLayers.add(mBLE);
+	}
+
+	public void setBLELayer(DummyBLE ble) {
 		mBLE = ble;
+		setupQuery();
 		connectLayers();
 	}
 

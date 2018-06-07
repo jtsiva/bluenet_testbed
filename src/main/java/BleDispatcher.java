@@ -1,50 +1,48 @@
 package nd.edu.bluenet_testbed;
 
-import nd.edu.bluenet_stack.DummyBLE;
-import nd.edu.bluenet_stack.Reader;
+import java.util.*;
+
+import nd.edu.bluenet_stack.*;
 
 public class BleDispatcher extends DummyBLE {
 	
-	private Map<byte[], Reader> mReaderMap = new HashMap<byte[], Reader>();
-	private List<Reader> mUnmappedReaders = new ArrayList<Reader>();
+	private Map<String, Reader> mReaderMap = new HashMap<String, Reader>();
+	private Set<String> mNearby = new HashSet<String>();
 
-
-	@Override
-	public void setReadCB(Reader reader) {
-		mUnmappedReaders.add(new Reader() {
-			public int read(AdvertisementPayload advPayload) {
-				mReaderMap.put(advPayload.getDestID(), reader);
-				return reader.read(advPayload);
-			}
-
-			public int read(String src, byte[] message) {
-				throw new java.lang.UnsupportedOperationException("Not supported.");
-			}
-		});
-			
+	public void setNearbyState(String id, boolean isNearby) {
+		if (isNearby) {
+			mNearby.add(id);
+		}
+		else {
+			mNearby.remove(id);
+		}
 	}
 
 	@Override
-	public int write(AdvertisementPayload advPayload) {
+	public void setReadCB(Reader reader) {
+		//This only works if setQueryCB is called right before this function
+		mReaderMap.put(mID, reader);
+	}
 
-		if (mReaderMap.contains(advPayload.getDestID())) {
-			
-			if (null != advPayload.getOneHopNeighbor()) {
-				Reader reader = mReaderMap.get(advPayload.getOneHopNeighbor());
-				return reader.read(advPayload);
-			}
-			else {
-				for (Map.Entry<byte [], Reader> entry : mReaderMap.entrySet())	{
-				    entry.getValue().read(advPayload);
-				}
-			}
+	//Need to set up concurrent queue for synchronization of multiple write actions
+
+	@Override
+	public int write(AdvertisementPayload advPayload) {
+		int retVal = -1;
+
+		if (null != advPayload.getOneHopNeighbor() && mNearby.contains(new String(advPayload.getOneHopNeighbor()))) {
+			Reader reader = mReaderMap.get(new String(advPayload.getOneHopNeighbor()));
+			retVal = reader.read(advPayload);
 		}
 		else {
-			for (Reader reader : mUnmappedReaders) {
-				reader.read(advPayload);
+			for (Map.Entry<String, Reader> entry : mReaderMap.entrySet())	{
+				if (mNearby.contains(entry.getKey())) {
+			    	retVal = entry.getValue().read(advPayload);
+			    }
 			}
 		}
 		
-
+		
+		return retVal;
 	}
 }
