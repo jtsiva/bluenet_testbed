@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import java.nio.charset.StandardCharsets;
 
@@ -35,6 +36,11 @@ public class BleDispatcherTest {
 	@Before
 	public void setup () {
 		mBLE = new BleDispatcher();
+	}
+
+	@After
+	public void cleanup () {
+		
 	}
 
 	private Query setupQuery(int id) {
@@ -73,7 +79,7 @@ public class BleDispatcherTest {
 		mBLE.setNearbyState("1", true);
 
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		assertEquals(layer.mMessage, advPayload);
 	}
 
@@ -90,7 +96,7 @@ public class BleDispatcherTest {
 		mBLE.setNearbyState("1", false);
 
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		assertEquals(layer.mMessage, null);
 	}
 
@@ -108,7 +114,7 @@ public class BleDispatcherTest {
 		mBLE.setNearbyState("1", true);
 
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		assertEquals(layer.mMessage, advPayload);
 	}
 
@@ -126,7 +132,7 @@ public class BleDispatcherTest {
 		mBLE.setNearbyState("1", false);
 
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		assertEquals(layer.mMessage, null);
 	}
 
@@ -145,7 +151,7 @@ public class BleDispatcherTest {
 		advPayload.setSrcID("1111");
 		advPayload.setMsgID((byte)56);
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		for (SimpleLayer layer: layers) {
 			assertEquals(layer.mMessage, advPayload);
 		}
@@ -167,7 +173,7 @@ public class BleDispatcherTest {
 		advPayload.setMsgID((byte)56);
 		advPayload.setOneHopNeighbor(String.valueOf(0));
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		for (SimpleLayer layer: layers) {
 			if (layer.mID.equals("0")) {
 				assertEquals(layer.mMessage, advPayload);
@@ -195,7 +201,7 @@ public class BleDispatcherTest {
 		advPayload.setSrcID("1111");
 		advPayload.setMsgID((byte)56);
 		mBLE.write(advPayload);
-
+		mBLE.finish();
 		for (SimpleLayer layer: layers) {
 			if (layer.mID.equals("0")) {
 				assertEquals(layer.mMessage, advPayload);
