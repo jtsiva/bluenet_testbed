@@ -127,6 +127,8 @@ public class LocationPlayback {
 
 		double fraction = (timeIndex - first.mTimestamp) / (double)(second.mTimestamp - first.mTimestamp);
 		//https://stackoverflow.com/questions/38767074/intermediate-points-between-2-geographic-coordinates
+		//https://www.movable-type.co.uk/scripts/latlong.html
+
 		// System.out.print("fraction: ");
 		// System.out.println(fraction);
 		double dist = fraction * LocationManager.distance(first.mLatitude, first.mLongitude, 
