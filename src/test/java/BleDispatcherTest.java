@@ -158,6 +158,30 @@ public class BleDispatcherTest {
 	}
 
 	@Test
+	public void shouldSetupMultipleAllReceiveGlobalControl() {
+		mBLE = new BleDispatcher(true);
+
+		List<SimpleLayer> layers = new ArrayList<SimpleLayer>();
+		for (int i = 0; i < 5; i++) {
+			SimpleLayer tmp = new SimpleLayer(i);
+			layers.add (tmp);
+			mBLE.setQueryCB(setupQuery(i));
+			mBLE.setReadCB(tmp);
+			mBLE.setNearbyState(String.valueOf(i), true);
+		}
+
+		AdvertisementPayload advPayload = new AdvertisementPayload();
+		advPayload.setSrcID("1111");
+		advPayload.setMsgID((byte)56);
+		mBLE.write(advPayload);
+		mBLE.update();//process queues
+		mBLE.finish();
+		for (SimpleLayer layer: layers) {
+			assertEquals(layer.mMessage, advPayload);
+		}
+	}
+
+	@Test
 	public void shouldSetupMultipleOneReceiveDirected() {
 		List<SimpleLayer> layers = new ArrayList<SimpleLayer>();
 		for (int i = 0; i < 5; i++) {

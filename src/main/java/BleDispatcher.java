@@ -1,6 +1,7 @@
 package nd.edu.bluenet_testbed;
 
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import nd.edu.bluenet_stack.*;
@@ -14,6 +15,16 @@ public class BleDispatcher extends DummyBLE {
 	private Set<String> mNearby = new HashSet<String>();
 	private boolean mFinished = false;
 
+	private boolean mGlobalControl;
+
+	public BleDispatcher () {
+		this(false);
+	}
+
+	public BleDispatcher (boolean useGlobalControl) {
+		mGlobalControl = useGlobalControl;
+	}
+
 	public void setNearbyState(String id, boolean isNearby) {
 		if (isNearby) {
 			mNearby.add(id);
@@ -24,25 +35,44 @@ public class BleDispatcher extends DummyBLE {
 	}
 
 	public void finish() {
-		mFinished = true;
-		for (Map.Entry<String, Thread> entry : mDevProcessor.entrySet())	{
-			try {
-				entry.getValue().join();
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				//????
+		if (!mGlobalControl) {
+			mFinished = true;
+			for (Map.Entry<String, Thread> entry : mDevProcessor.entrySet())	{
+				try {
+					entry.getValue().join();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					//????
+				}
 			}
 		}
 	}
 
-	@Override
-	public void setReadCB(Reader reader) {
-		//This only works if setQueryCB is called right before this function
-		mReaderMap.put(mID, reader);
-		mDevQ.put(mID, new ConcurrentLinkedQueue<AdvertisementPayload>());
+	public void update() {
+		//https://stackoverflow.com/questions/12815460/hashmap-iterating-the-key-value-pairs-in-random-order
+		// We want to simulate a non deterministic processing order of the receiving devices
 
+		if (mGlobalControl) {
+			List<Map.Entry<String,ConcurrentLinkedQueue>> list = new ArrayList<Map.Entry<String,ConcurrentLinkedQueue>>(mDevQ.entrySet());
+
+			// each time you want a different order.
+			Collections.shuffle(list);
+			for(Map.Entry<String, ConcurrentLinkedQueue> entry: list) {
+				if (null != entry.getValue()) {
+					ConcurrentLinkedQueue<AdvertisementPayload> q = entry.getValue();
+					AdvertisementPayload advPayload = q.poll();
+		        	if (null != advPayload) {
+		        		Reader reader = mReaderMap.get(entry.getKey());
+		        		reader.read(advPayload);
+		        	}
+		        }
+			}
+		}
+	}
+
+	private void setupThread(String id) {
 		Thread t = new Thread() {
-			private String myID = mID;
+			private String myID = id;
 		    public void run() {
 				while (!mFinished || !mDevQ.get(myID).isEmpty()) {
 					try {
@@ -65,6 +95,17 @@ public class BleDispatcher extends DummyBLE {
 
 		t.start();
 		mDevProcessor.put(mID, t);
+	}
+
+	@Override
+	public void setReadCB(Reader reader) {
+		//This only works if setQueryCB is called right before this function
+		mReaderMap.put(mID, reader);
+		mDevQ.put(mID, new ConcurrentLinkedQueue<AdvertisementPayload>());
+		if (!mGlobalControl) {
+			setupThread(mID);
+		}
+		
 	}
 
 	@Override
