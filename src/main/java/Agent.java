@@ -29,8 +29,9 @@ public class Agent {
 	public Agent(String locationFile) {
 		mLocPlayback = new LocationPlayback(locationFile);
 		mSimStack = new SimulatorStack();
+		updateLocation();
 		
-		setupCallback();		
+		setupCallback();	
 	}
 
 	private void setupCallback() {
@@ -52,10 +53,37 @@ public class Agent {
 
 	public void update(long timeIndexDiff) {
 		mLocPlayback.update(timeIndexDiff);
+		updateLocation();
 	}
 
-	public LocationPlayback.LocationEntry getLocation() {
-		return mLocPlayback.getLocation();
+	private void updateLocation() {
+		LocationPlayback.LocationEntry entry = mLocPlayback.getLocation();
+		mSimStack.setLocation((float)entry.mLatitude, (float)entry.mLongitude);
+	}
+
+	public List<Message> getMessages(int start, int end) {
+		if (end < start) {
+			end = start;
+		}
+
+		if (start < 0) {
+			start = 0;
+		}
+
+		if (end > mMsgList.size()) {
+			end = mMsgList.size();
+		}
+
+		return mMsgList.subList(start, end);
+
+	}
+
+	public String getID () {
+		return mSimStack.getMyID();
+	}
+
+	public Coordinate getLocation() {
+		return mSimStack.getLocation(mSimStack.getMyID());
 	}
 
 
