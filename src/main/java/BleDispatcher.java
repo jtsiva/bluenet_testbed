@@ -3,6 +3,7 @@ package nd.edu.bluenet_testbed;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.util.Pair;
 
 import nd.edu.bluenet_stack.*;
 
@@ -12,7 +13,7 @@ public class BleDispatcher extends DummyBLE {
 	private Map<String, ConcurrentLinkedQueue> mDevQ = new HashMap<String, ConcurrentLinkedQueue>();
 	private Map<String, Thread> mDevProcessor = new HashMap<String, Thread>();
 
-	private Set<String> mNearby = new HashSet<String>();
+	private Map<Pair<String,String>, Integer> mNearby = new HashMap<Pair<String,String>, Integer>();
 	private boolean mFinished = false;
 
 	private boolean mGlobalControl;
@@ -25,13 +26,11 @@ public class BleDispatcher extends DummyBLE {
 		mGlobalControl = useGlobalControl;
 	}
 
-	public void setNearbyState(String id, boolean isNearby) {
-		if (isNearby) {
-			mNearby.add(id);
-		}
-		else {
-			mNearby.remove(id);
-		}
+	public void setNearbyState(String canThis, String seeThis, Integer nearby) {
+		//symmetric!
+		mNearby.put(new Pair(canThis, seeThis), nearby);
+		mNearby.put(new Pair(seeThis, canThis), nearby);
+	
 	}
 
 	public void finish() {
@@ -112,12 +111,14 @@ public class BleDispatcher extends DummyBLE {
 	public int write(AdvertisementPayload advPayload) {
 		int retVal = 0;
 
-		if (null != advPayload.getOneHopNeighbor() && mNearby.contains(new String(advPayload.getOneHopNeighbor()))) {
-			mDevQ.get(new String(advPayload.getOneHopNeighbor())).add(advPayload);
+		if (null != advPayload.getOneHopNeighbor()) {
+			if (0 != mNearby.get(new Pair(new String(advPayload.getSrcID()), new String(advPayload.getOneHopNeighbor())))) {
+				mDevQ.get(new String(advPayload.getOneHopNeighbor())).add(advPayload);
+			}
 		}
 		else {
 			for (Map.Entry<String, ConcurrentLinkedQueue> entry : mDevQ.entrySet())	{
-				if (mNearby.contains(entry.getKey())) {
+				if (0 != mNearby.get(new Pair(new String(advPayload.getSrcID()), entry.getKey()))) {
 			    	entry.getValue().add(advPayload);
 			    }
 			}

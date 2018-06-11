@@ -76,7 +76,7 @@ public class BleDispatcherTest {
 		advPayload.setSrcID("1111");
 		advPayload.setMsgID((byte)1);
 
-		mBLE.setNearbyState("1", true);
+		mBLE.setNearbyState("1111", "1", 1);
 
 		mBLE.write(advPayload);
 		mBLE.finish();
@@ -93,7 +93,7 @@ public class BleDispatcherTest {
 		advPayload.setSrcID("1111");
 		advPayload.setMsgID((byte)1);
 
-		mBLE.setNearbyState("1", false);
+		mBLE.setNearbyState("1111", "1", 0);
 
 		mBLE.write(advPayload);
 		mBLE.finish();
@@ -111,7 +111,7 @@ public class BleDispatcherTest {
 		advPayload.setMsgID((byte)1);
 		advPayload.setOneHopNeighbor("1");
 
-		mBLE.setNearbyState("1", true);
+		mBLE.setNearbyState("1111", "1", 1);
 
 		mBLE.write(advPayload);
 		mBLE.finish();
@@ -129,7 +129,7 @@ public class BleDispatcherTest {
 		advPayload.setMsgID((byte)1);
 		advPayload.setOneHopNeighbor("1");
 
-		mBLE.setNearbyState("1", false);
+		mBLE.setNearbyState("1111", "1", 0);
 
 		mBLE.write(advPayload);
 		mBLE.finish();
@@ -144,7 +144,7 @@ public class BleDispatcherTest {
 			layers.add (tmp);
 			mBLE.setQueryCB(setupQuery(i));
 			mBLE.setReadCB(tmp);
-			mBLE.setNearbyState(String.valueOf(i), true);
+			mBLE.setNearbyState("1111", String.valueOf(i), 1);
 		}
 
 		AdvertisementPayload advPayload = new AdvertisementPayload();
@@ -167,7 +167,7 @@ public class BleDispatcherTest {
 			layers.add (tmp);
 			mBLE.setQueryCB(setupQuery(i));
 			mBLE.setReadCB(tmp);
-			mBLE.setNearbyState(String.valueOf(i), true);
+			mBLE.setNearbyState("1111", String.valueOf(i), 1);
 		}
 
 		AdvertisementPayload advPayload = new AdvertisementPayload();
@@ -189,7 +189,7 @@ public class BleDispatcherTest {
 			layers.add (tmp);
 			mBLE.setQueryCB(setupQuery(i));
 			mBLE.setReadCB(tmp);
-			mBLE.setNearbyState(String.valueOf(i), true);
+			mBLE.setNearbyState("1111", String.valueOf(i), 1);
 		}
 
 		AdvertisementPayload advPayload = new AdvertisementPayload();
@@ -216,10 +216,10 @@ public class BleDispatcherTest {
 			layers.add (tmp);
 			mBLE.setQueryCB(setupQuery(i));
 			mBLE.setReadCB(tmp);
-			mBLE.setNearbyState(String.valueOf(i), false);
+			mBLE.setNearbyState("1111", String.valueOf(i), 0);
 		}
 
-		mBLE.setNearbyState("0", true);
+		mBLE.setNearbyState("1111", "0", 1);
 
 		AdvertisementPayload advPayload = new AdvertisementPayload();
 		advPayload.setSrcID("1111");
