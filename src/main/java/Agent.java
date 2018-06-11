@@ -22,7 +22,18 @@ public class Agent {
 	public Agent() {
 		mLocPlayback = new LocationPlayback();
 		mSimStack = new SimulatorStack();
+		
+		setupCallback();		
+	}
 
+	public Agent(String locationFile) {
+		mLocPlayback = new LocationPlayback(locationFile);
+		mSimStack = new SimulatorStack();
+		
+		setupCallback();		
+	}
+
+	private void setupCallback() {
 		mSimStack.regCallback(new Result () {
 			public int provide(String src, byte[] data) {
 				mMsgList.add(new Message(src, new String(data)));
