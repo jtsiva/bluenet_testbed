@@ -23,6 +23,8 @@ public class SimulatorStack extends ProtocolContainer {
 
 	public void setBLELayer(DummyBLE ble) {
 		mBLE = ble;
+		mLayers.remove (mLayers.size() - 1);
+		mLayers.add(mBLE);
 		setupQuery();
 		connectLayers();
 	}

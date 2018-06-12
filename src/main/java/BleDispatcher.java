@@ -99,6 +99,7 @@ public class BleDispatcher extends DummyBLE {
 	@Override
 	public void setReadCB(Reader reader) {
 		//This only works if setQueryCB is called right before this function
+		//System.err.println("adding: " + mID);
 		mReaderMap.put(mID, reader);
 		mDevQ.put(mID, new ConcurrentLinkedQueue<AdvertisementPayload>());
 		if (!mGlobalControl) {
@@ -118,6 +119,12 @@ public class BleDispatcher extends DummyBLE {
 		}
 		else {
 			for (Map.Entry<String, ConcurrentLinkedQueue> entry : mDevQ.entrySet())	{
+				if (null == mNearby || advPayload == null || entry == null) {
+					System.err.println("???");
+				}
+				// System.err.println(advPayload.getSrcID());
+				// System.err.println(entry.getKey());
+				// System.err.println(mNearby.get(new Pair(new String(advPayload.getSrcID()), entry.getKey())));
 				if (0 != mNearby.get(new Pair(new String(advPayload.getSrcID()), entry.getKey()))) {
 			    	entry.getValue().add(advPayload);
 			    }

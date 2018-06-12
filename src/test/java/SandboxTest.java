@@ -13,7 +13,7 @@ public class SandboxTest {
 
 	@Before
 	public void setup () {
-		mSandbox = new Sandbox("", "./batch");
+		mSandbox = new Sandbox("", "data/test");
 	}
 
 	@Test

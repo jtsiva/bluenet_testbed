@@ -3,6 +3,7 @@ package nd.edu.bluenet_testbed;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
+import javafx.util.Pair;
 
 import nd.edu.bluenet_stack.DummyBLE;
 import nd.edu.bluenet_stack.Coordinate;
@@ -22,6 +23,9 @@ public class Sandbox {
 		}
 	}
 
+	//TODO: take an xml file with configuration and list of trace files
+	//pass each path to initAgent
+
 	public Sandbox(String confFilename, String traceDir, boolean globalCtrl) {
 		mBLE = new BleDispatcher(globalCtrl);
 		initAgents(traceDir);
@@ -32,25 +36,42 @@ public class Sandbox {
 		initAgents(traceDir);
 	}
 
-	public void cleanup() {
+	public void finish() {
 		if (mBLE.getClass() == BleDispatcher.class) {
 			((BleDispatcher)mBLE).finish();
 		}
 	}
 
 	private void initAgents (String traceDir) {
-		String dir = this.getClass().getClassLoader().getResource(traceDir).getFile();
-		File[] files = new File(dir).listFiles();
+		// String dir = this.getClass().getClassLoader().getResource(traceDir).getFile();
+		// File[] files = new File(dir).listFiles();
+		// 
 
+		File dir = new File ("/home/josh/projects/bluenet_testbed/" + traceDir);
+		//System.err.println(dir);
+	    if (null != dir) {
+		    for (File file : dir.listFiles()) {
+		    	//System.err.println(file);
+		        Agent newAgent = new Agent(file.getPath());
+				newAgent.setBLELayer(mBLE);
+				mAgents.add(newAgent);
+				//System.out.println(newAgent.getID());
+		    }
 
-		for (File file: files) {
-			Agent newAgent = new Agent(file.getPath());
-			newAgent.setBLELayer(mBLE);
-			mAgents.add(newAgent);
+		    for (Agent agent1: mAgents) {
+		    	for (Agent agent2: mAgents) {
+		    		((BleDispatcher)mBLE).setNearbyState(agent1.getID(), agent2.getID(), 1);
+		    	}
+		    }
 		}
+		else {
+			System.err.println("Couldn't find folder!");
+		}
+		
+
 	}
 
-	public void updateAgent(long timeStep) {
+	private void updateAgent(long timeStep) {
 		for (Agent agent: mAgents) {
 			agent.update(timeStep);
 		}
