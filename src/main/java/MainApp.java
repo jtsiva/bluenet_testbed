@@ -23,8 +23,8 @@ import java.util.List;
 
 public class MainApp extends Application implements MapComponentInitializedListener {
 
-final int MULTIPLIER = 3000;
-final long ITERATION_PERIOD = 100;
+final int MULTIPLIER = 300;
+final long ITERATION_PERIOD = 1000;
 
 GoogleMapView mapView;
 GoogleMap map;
@@ -42,7 +42,7 @@ public void start(Stage stage) throws Exception {
    //
   
    
-   mSandbox = new Sandbox("", "data/batch1");
+   mSandbox = new Sandbox("", "data/batch2");
 
     //Create the JavaFX component and set this as a listener so we know when 
     //the map has been initialized, at which point we can then begin manipulating it.
@@ -119,7 +119,13 @@ private void updateMarkers(Sandbox.CoordinateTag [] coordinates) {
         else {
             Marker marker = mMarkers.get(coordinates[i].mTag);
             marker.setPosition (new LatLong(coordinates[i].mCoord.mLatitude, coordinates[i].mCoord.mLongitude));
-            //System.out.println("Updated marker named: " + coordinates[i].mTag);
+            // System.out.println("Updated marker named: " + coordinates[i].mTag);
+            // if (coordinates[i].mCoord.mLatitude != coordinates[i].mCoord.mLatitude) {
+            //     System.out.println("WTF!?!?!?");
+            // }
+            // System.out.print(coordinates[i].mCoord.mLatitude);
+            // System.out.print(", ");
+            // System.out.println(coordinates[i].mCoord.mLongitude);
             mMarkers.put(coordinates[i].mTag, marker);
         }
     }

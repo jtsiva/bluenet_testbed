@@ -55,7 +55,7 @@ public class Sandbox {
 		        Agent newAgent = new Agent(file.getPath());
 				newAgent.setBLELayer(mBLE);
 				mAgents.add(newAgent);
-				//System.out.println(newAgent.getID());
+				//System.out.println(file.getPath() + " " + newAgent.getID());
 		    }
 
 		    for (Agent agent1: mAgents) {

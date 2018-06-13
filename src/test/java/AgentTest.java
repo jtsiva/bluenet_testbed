@@ -31,4 +31,14 @@ public class AgentTest {
 		assertEquals(-0.112585974857316, entry.mLongitude, DELTA);
 
 	}
+
+	@Test
+	public void shouldNotReturnNaN () {
+		while (!mAgent.playbackDone) {
+			mAgent.update(5000);
+			Coordinate coor = mAgent.getLocation();
+			assertTrue(coor.mLatitude == coor.mLatitude);
+			assertTrue(coor.mLongitude == coor.mLongitude);
+		}
+	}
 }

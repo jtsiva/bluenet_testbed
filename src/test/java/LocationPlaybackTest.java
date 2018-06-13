@@ -102,4 +102,38 @@ public class LocationPlaybackTest {
 
 		assertTrue(distA > distB);
 	}
+
+	@Test
+	public void shouldPlayToEndBigSteps () {
+		LocationPlayback.LocationEntry entry;
+		boolean done = false;
+		while (!done) {
+			entry = mLocPlayback.getLocation();
+			if (null != entry) {
+				mLocPlayback.update(10000);
+			}
+			else {
+				done = true;
+			}
+		}
+
+		assertTrue(true);
+	}
+
+	@Test
+	public void shouldNeverReturnNaN() {
+		LocationPlayback.LocationEntry entry;
+		boolean done = false;
+		while (!done) {
+			entry = mLocPlayback.getLocation();
+			if (null != entry) {
+				mLocPlayback.update(1500);
+				assertTrue(entry.mLatitude == entry.mLatitude); //only way to check for NaN
+				assertTrue(entry.mLongitude == entry.mLongitude);
+			}
+			else {
+				done = true;
+			}
+		}
+	}
 }

@@ -89,14 +89,19 @@ public class LocationPlayback {
 				}
 			}
 
-			//exact match
-			if (timeIndexDiff + mCurrent.mTimestamp == mEntries.get(mIndex).mTimestamp) {
-				mCurrent = mEntries.get(mIndex);
+			if (!done) {//we got the end of our entries
+				mCurrent = null; // so we can indicate that we hit the end
 			}
-			else { //linearly interpolate a position based on constant speed between known locs
-				mCurrent = expectedLoc(mEntries.get(mIndex), 
-									  mEntries.get(mIndex + 1), 
-									  timeIndexDiff + mCurrent.mTimestamp);
+			else {
+				//exact match
+				if (timeIndexDiff + mCurrent.mTimestamp == mEntries.get(mIndex).mTimestamp) {
+					mCurrent = mEntries.get(mIndex);
+				}
+				else { //linearly interpolate a position based on constant speed between known locs
+					mCurrent = expectedLoc(mEntries.get(mIndex), 
+										  mEntries.get(mIndex + 1), 
+										  timeIndexDiff + mCurrent.mTimestamp);
+				}
 			}
 
 		}
@@ -145,19 +150,26 @@ public class LocationPlayback {
 		double lat2 = second.mLatitude;
 		double lon2 = second.mLongitude;
 
-		double constant = Math.PI / 180;
-        double angular = dist / 6371000;
-        double a = Math.sin((1-fraction) * angular) / Math.sin(angular);
-        double b = Math.sin(fraction * angular) / Math.sin(angular);
-        double x = a * Math.cos(lat1 * constant) * Math.cos(lon1 * constant) + 
-                   b * Math.cos(lat2 * constant) * Math.cos(lon2 * constant);
-        double y = a * Math.cos(lat1 * constant) * Math.sin(lon1 * constant) + 
-                   b * Math.cos(lat2 * constant) * Math.sin(lon2 * constant);
-        double z = a * Math.sin(lat1 * constant) + b * Math.sin(lat2 * constant);
-        double lat3 = Math.atan2(z, Math.sqrt(x * x + y * y));
-        double lon3 = Math.atan2(y, x);
+		if (first.mLatitude != second.mLatitude || first.mLongitude != second.mLongitude) {
 
-		return new LocationEntry(timeIndex, lat3 / constant, lon3 / constant);
+			double constant = Math.PI / 180;
+	        double angular = dist / 6371000;
+	        double a = Math.sin((1-fraction) * angular) / Math.sin(angular);
+	        double b = Math.sin(fraction * angular) / Math.sin(angular);
+	        double x = a * Math.cos(lat1 * constant) * Math.cos(lon1 * constant) + 
+	                   b * Math.cos(lat2 * constant) * Math.cos(lon2 * constant);
+	        double y = a * Math.cos(lat1 * constant) * Math.sin(lon1 * constant) + 
+	                   b * Math.cos(lat2 * constant) * Math.sin(lon2 * constant);
+	        double z = a * Math.sin(lat1 * constant) + b * Math.sin(lat2 * constant);
+
+	        double lat3 = Math.atan2(z, Math.sqrt(x * x + y * y));
+	        double lon3 = Math.atan2(y, x);
+
+	        return new LocationEntry(timeIndex, lat3 / constant, lon3 / constant);
+	    }
+	    else {
+	    	return new LocationEntry(timeIndex, first.mLatitude, first.mLongitude);
+	    }
 	}
 
 

@@ -19,6 +19,8 @@ public class Agent {
 	private SimulatorStack mSimStack = null;
 	private List<Message> mMsgList = new ArrayList<Message>();
 
+	public boolean playbackDone = false;
+
 	public Agent() {
 		mLocPlayback = new LocationPlayback();
 		mSimStack = new SimulatorStack();
@@ -58,7 +60,12 @@ public class Agent {
 
 	private void updateLocation() {
 		LocationPlayback.LocationEntry entry = mLocPlayback.getLocation();
-		mSimStack.setLocation((float)entry.mLatitude, (float)entry.mLongitude);
+		if (null != entry) {
+			mSimStack.setLocation((float)entry.mLatitude, (float)entry.mLongitude);
+		}
+		else {
+			playbackDone = true;
+		}
 	}
 
 	public List<Message> getMessages(int start, int end) {
